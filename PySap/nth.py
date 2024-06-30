@@ -32,7 +32,7 @@ class Game:
     def __init__(self, size, config=None):
         pygame.init()
         self.screen = pygame.display.set_mode(size)
-        self.image = pygame.image.load('doroga.png').convert()
+        self.image = pygame.image.load('data/doroga.png').convert()
         self.image = pygame.transform.scale(self.image, self.screen.get_size())
         self.sts = 1
         self.conets = 0
@@ -122,7 +122,7 @@ class Game:
 
 class Bomb:
     def __init__(self, cell_w, cell_h):
-        self.bomb = pygame.image.load('mini-bombr.png').convert()
+        self.bomb = pygame.image.load('data/mini-bombr.png').convert()
         self.bomb = pygame.transform.scale(self.bomb, (cell_w, cell_h))
 
 
@@ -147,14 +147,14 @@ class Board:
         self.cell_h = cell_h
         self.gen_bomb_pole()
         self.nums = {0: self.pole2,
-                     1: pygame.image.load('1.png').convert(),
-                     2: pygame.image.load('2.png').convert(),
-                     3: pygame.image.load('3.png').convert(),
-                     4: pygame.image.load('4.png').convert(),
-                     5: pygame.image.load('5.png').convert(),
-                     6: pygame.image.load('6.png').convert(),
-                     7: pygame.image.load('7.png').convert(),
-                     8: pygame.image.load('8.png').convert()}
+                     1: pygame.image.load('data/1.png').convert(),
+                     2: pygame.image.load('data/2.png').convert(),
+                     3: pygame.image.load('data/3.png').convert(),
+                     4: pygame.image.load('data/4.png').convert(),
+                     5: pygame.image.load('data/5.png').convert(),
+                     6: pygame.image.load('data/6.png').convert(),
+                     7: pygame.image.load('data/7.png').convert(),
+                     8: pygame.image.load('data/8.png').convert()}
 
     def gen_bomb_pole(self):
         c = 0
@@ -203,7 +203,7 @@ class Board:
 
     def render2(self, screen):
         surf = pygame.Surface(screen.get_size())
-        image = pygame.image.load('doroga.png').convert()
+        image = pygame.image.load('data/doroga.png').convert()
         image = pygame.transform.scale(image, screen.get_size())
         surf.blit(image, (0, 0))
         st = (self.left, self.top)
