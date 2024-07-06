@@ -1,9 +1,13 @@
 import sys
 import pygame
+from os import listdir
+from os.path import isfile, join
+from json import loads, dumps
 
 
 from .Board import Board
 from .Timer import Timer
+from objects.Bomb import Bomb
 
 
 def pram(cont):
@@ -20,18 +24,10 @@ class Game:
         self.screen = pygame.display.set_mode(size)
         self.image = pygame.image.load('data/doroga.png').convert()
         self.image = pygame.transform.scale(self.image, self.screen.get_size())
-        self.sts = 1
-        self.conets = 0
-        self.timer = Timer()
         self.game()
 
     def game(self):
         self.start()
-        self.board = Board(30, 16, self.screen, bombs=100)
-        self.board.set_view2(20, 20, 20, 20, self.screen, 100)
-        self.bombed = 0
-        self.show = 0
-        n = 1
         while 1:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -41,13 +37,15 @@ class Game:
                     self.bombed = res
                     self.conets = self.bombed
                 elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_LCTRL and event.key == pygame.K_s:
+                        print(self.make_save())
                     if event.key == pygame.K_1 and self.sts:
                         self.sts = 0
-                        self.st()
+                        self.start()
                     if event.key == pygame.K_1 and (not self.sts) and (self.conets) and (not self.show):
                         self.conets = 0
                         self.bombed = 0
-                        self.st()
+                        self.start()
                     if event.key == pygame.K_2 and (not self.sts) and (self.conets):
                         self.show = not self.show
             if self.show:
@@ -59,7 +57,23 @@ class Game:
                 self.conets = 1
                 self.fin('win')
 
-    def start(self):
+    def start(self, board=None):
+        self.board = Board(30, 16, self.screen, bombs=100)
+        self.board.gen_bomb_pole()
+        self.board.set_view2(20, 20, 20, 20, self.screen, 100)
+        if board:
+            self.board.bombs = board['board']['bombs']
+            for i in range(len(board['board']['bomb_pole'])):
+                for j in range(len(board['board']['bomb_pole'][0])):
+                    if board['board']['bomb_pole'][i][j]:
+                        board['board']['bomb_pole'][i][j] = Bomb(self.board.cell_w, self.board.cell_h)
+            self.board.bomb_pole = board['board']['bomb_pole']
+            self.board.counts_up()
+        self.bombed = 0
+        self.show = 0
+        self.timer = Timer()
+        self.sts = 1
+        self.conets = 0
         surf = pygame.Surface(self.screen.get_size())
         font = pygame.font.Font(None, 30)
         string_rendered = font.render('Нажмите [1] для начала в режиме игры 30X16 клеток', 1, pygame.Color('white'))
@@ -73,7 +87,7 @@ class Game:
     def st(self):
         self.timer.start()
         self.timer.c = 0
-        self.oard = Board(30, 16, self.screen, bombs=100)  # x, y
+        self.board = Board(30, 16, self.screen, bombs=100)  # x, y
         self.board.set_view2(20, 20, 20, 20, self.screen, 100)
         self.board.render2(self.screen)
         pygame.display.flip()
@@ -102,5 +116,57 @@ class Game:
 
 
     def terminate(self):
+        self.make_save()
         pygame.quit()
         sys.exit()
+
+    def make_save(self):
+        try:
+            onlyfiles = sorted([f for f in listdir('saves') if isfile(join('saves', f))])
+            op = [[0 for j in range(len(self.board.board[0]))] for i in range(len(self.board.board))]
+            bo = [[0 for j in range(len(self.board.board[0]))] for i in range(len(self.board.board))]
+            for i in range(len(self.board.board)):
+                for j in range(len(self.board.board[0])):
+                    if self.board.board[i][j] != self.board.pole:
+                        op[i][j] = 1
+                    if self.board.bomb_pole[i][j]:
+                        bo[i][j] = 1
+            js = {'board': {'op': op, 'count_pole': self.board.counts_pole.tolist(), 'bomb_pole': bo, 'bombs': self.board.bombs}, 'game': {'sts': self.sts, 'conets': self.conets, 'start_time': self.timer.start_time, 'end_time': self.timer.end_time}}
+            if onlyfiles:
+                with open('saves/save_' + str(int(onlyfiles[-1][-6]) + 1) + '.json', 'w') as f:
+                    f.write(dumps(js))
+            else:
+                with open('saves/save_0.json', 'w') as f:
+                    f.write(dumps(js))
+            return 1
+        except:
+            return 0
+
+    def load_save(self):
+        try:
+            return 1
+        except:
+            return 0
+
+    def save_board(self, name):
+        try:
+            bo = [[0 for j in range(len(self.board.board[0]))] for i in range(len(self.board.board))]
+            for i in range(len(self.board.board)):
+                for j in range(len(self.board.board[0])):
+                    if self.board.bomb_pole[i][j]:
+                        bo[i][j] = 1
+            js = {'board': {'bomb_pole': bo, 'bombs': self.board.bombs}}
+            with open('boards/' + name + '.json', 'w') as f:
+                f.write(dumps(js))
+            return 1
+        except:
+            return 0
+
+    def load_board(self, name):
+        try:
+            with open('boards/' + name + '.json', 'r') as f:
+                js = loads(f.read())
+                self.start(js)
+            return 1
+        except:
+            return 0
