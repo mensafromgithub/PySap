@@ -25,7 +25,6 @@ class Board:
         self.bottom = self.top
         self.cell_w = cell_w
         self.cell_h = cell_h
-        self.gen_bomb_pole()
         self.nums = {0: self.pole2,
                      1: pygame.image.load('data/1.png').convert(),
                      2: pygame.image.load('data/2.png').convert(),
