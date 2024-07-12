@@ -24,6 +24,11 @@ class Game:
         self.screen = pygame.display.set_mode(size)
         self.image = pygame.image.load('data/doroga.png').convert()
         self.image = pygame.transform.scale(self.image, self.screen.get_size())
+        self.timer = Timer()
+        self.bombed = 0
+        self.show = 0
+        self.sts = 1
+        self.conets = 0
         self.game()
 
     def game(self):
@@ -37,43 +42,29 @@ class Game:
                     self.bombed = res
                     self.conets = self.bombed
                 elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q:
+                        print(self.save_board('Vasya'))
+                    if event.key == pygame.K_w:
+                        print(self.load_board('Vasya_1'))
                     if event.key == pygame.K_LCTRL and event.key == pygame.K_s:
                         print(self.make_save())
                     if event.key == pygame.K_1 and self.sts:
-                        self.sts = 0
-                        self.start()
+                        self.st()
                     if event.key == pygame.K_1 and (not self.sts) and (self.conets) and (not self.show):
-                        self.conets = 0
-                        self.bombed = 0
-                        self.start()
+                        self.st()
                     if event.key == pygame.K_2 and (not self.sts) and (self.conets):
                         self.show = not self.show
-            if self.show:
-                self.board.show_bombs(self.screen)
-            elif self.conets and self.bombed:
-                self.fin('bombed')
-            elif pram(self.board.board).count(self.board.pole) == self.board.bombs:
-                print(self.board.bombs)
-                self.conets = 1
-                self.fin('win')
+            if self.conets:
+                if self.show:
+                    self.board.show_bombs(self.screen)
+                elif self.bombed:
+                    self.fin('bombed')
+                elif pram(self.board.board).count(self.board.pole) == self.board.bombs:
+                    print(self.board.bombs)
+                    self.conets = 1
+                    self.fin('win')
 
-    def start(self, board=None):
-        self.board = Board(30, 16, self.screen, bombs=100)
-        self.board.gen_bomb_pole()
-        self.board.set_view2(20, 20, 20, 20, self.screen, 100)
-        if board:
-            self.board.bombs = board['board']['bombs']
-            for i in range(len(board['board']['bomb_pole'])):
-                for j in range(len(board['board']['bomb_pole'][0])):
-                    if board['board']['bomb_pole'][i][j]:
-                        board['board']['bomb_pole'][i][j] = Bomb(self.board.cell_w, self.board.cell_h)
-            self.board.bomb_pole = board['board']['bomb_pole']
-            self.board.counts_up()
-        self.bombed = 0
-        self.show = 0
-        self.timer = Timer()
-        self.sts = 1
-        self.conets = 0
+    def start(self):
         surf = pygame.Surface(self.screen.get_size())
         font = pygame.font.Font(None, 30)
         string_rendered = font.render('Нажмите [1] для начала в режиме игры 30X16 клеток', 1, pygame.Color('white'))
@@ -84,11 +75,21 @@ class Game:
         self.screen.blit(surf, (0, 0))
         pygame.display.flip()
 
-    def st(self):
+    def st(self, board=None):
+        self.sts = 0
+        self.conets = 0
+        self.bombed = 0
         self.timer.start()
-        self.timer.c = 0
         self.board = Board(30, 16, self.screen, bombs=100)  # x, y
         self.board.set_view2(20, 20, 20, 20, self.screen, 100)
+        if board:
+            self.board.bombs = board['board']['bombs']
+            for i in range(len(board['board']['bomb_pole'])):
+                for j in range(len(board['board']['bomb_pole'][0])):
+                    if board['board']['bomb_pole'][i][j]:
+                        board['board']['bomb_pole'][i][j] = Bomb(self.board.cell_w, self.board.cell_h)
+            self.board.bomb_pole = board['board']['bomb_pole']
+            self.board.counts_up()
         self.board.render2(self.screen)
         pygame.display.flip()
 
@@ -166,7 +167,7 @@ class Game:
         try:
             with open('boards/' + name + '.json', 'r') as f:
                 js = loads(f.read())
-                self.start(js)
+                self.st(js)
             return 1
         except:
             return 0

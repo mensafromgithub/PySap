@@ -12,6 +12,8 @@ class Board:
         self.pole2 = pygame.image.load('data/src.jfif').convert()
         self.pole = pygame.transform.scale(self.pole, (cell_w, cell_h))
         self.pole2 = pygame.transform.scale(self.pole2, (cell_w, cell_h))
+        self.image = pygame.image.load('data/doroga.png').convert()
+        self.image = pygame.transform.scale(self.image, screen.get_size())
         self.board = full((height, width), self.pole, dtype='object')
         self.coords = [[(0, 0)] * width for i in range(height)]
         self.bomb_pole = zeros((height, width), dtype='object')
@@ -70,6 +72,9 @@ class Board:
         self.bottom = bottom
         self.cell_w = (screen.get_size()[0] - self.left - self.right) // len(self.board[0])
         self.cell_h = (screen.get_size()[1] - self.top - self.bottom) // len(self.board)
+        for i in arange(1, len(self.board) + 1):
+            for j in arange(1, len(self.board[0]) + 1):
+                self.coords[i - 1][j - 1] = (self.left + self.cell_w * j, self.top + self.cell_h * i)
         self.res_pole()
         self.render2(screen)
         self.gen_bomb_pole()
@@ -82,16 +87,13 @@ class Board:
 
     def render2(self, screen):
         surf = pygame.Surface(screen.get_size())
-        image = pygame.image.load('data/doroga.png').convert()
-        image = pygame.transform.scale(image, screen.get_size())
-        surf.blit(image, (0, 0))
+        surf.blit(self.image, (0, 0))
         st = (self.left, self.top)
         for i in arange(1, len(self.board) + 1):
             for j in arange(1, len(self.board[0]) + 1):
                 surf.blit(self.board[i - 1][j - 1], st)
                 pygame.draw.rect(surf, (255, 255, 255), (st, (self.cell_w, self.cell_h)), 1)
                 st = (st[0] + self.cell_w, st[1])
-                self.coords[i - 1][j - 1] = (self.left + self.cell_w * j, self.top + self.cell_h * i)
             st = (self.left, st[1] + self.cell_h)
         screen.blit(surf, (0, 0))
 
@@ -117,8 +119,6 @@ class Board:
     def on_click(self, cell):
         try:
             if self.bomb_pole[cell[1]][cell[0]]:
-                self.board[cell[1]][cell[0]] = pygame.transform.scale(self.bomb_pole[cell[1]][cell[0]].bomb,
-                                                                      (self.cell_w, self.cell_h))
                 return 1, [None]
             else:
                 self.board[cell[1]][cell[0]] = pygame.transform.scale(self.nums[self.counts_pole[cell[1]][cell[0]]],

@@ -9,6 +9,7 @@ class Timer:
 
     def start(self):
         self.start_time = time()
+        self.c = 0
 
     def end(self):
         if not self.c:
