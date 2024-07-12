@@ -11,12 +11,12 @@ from zipfile import ZipFile
 parser = argparse.ArgumentParser(prog='UpMan')
 parser.add_argument('-v', '--version', default='v0.0.0.0')
 parser.add_argument('-i', '--ignore', nargs='*', default='')
-parser.add_argument('-c', '--clear', default=False, choices=[True, False])
+parser.add_argument('-c', '--clear', default='False', choices=['True', 'False'])
 
 args = parser.parse_args()
 ignore_const = {'boards', 'saves', 'UpMan.py'}
 files_dirs = set(listdir())
-if args.clear:
+if args.clear == 'True':
     rmtree('boards')
     rmtree('saves')
     ignore_const = {'UpMan.py'}
