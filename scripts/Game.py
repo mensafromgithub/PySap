@@ -3,6 +3,8 @@ import pygame
 from os import listdir
 from os.path import isfile, join
 from json import loads, dumps
+from pickle import load, dump
+import time
 
 
 from .Board import Board
@@ -33,14 +35,22 @@ class Game:
 
     def game(self):
         self.start()
+        t = 0
+        c = 0
         while 1:
+            if time.time() - t >= 10:
+                c = 0
+                t = 0
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.terminate()
                 if event.type == pygame.MOUSEBUTTONDOWN and (not self.sts) and (not self.conets):
                     res = self.board.get_click(event.pos)
-                    self.bombed = res
+                    self.bombed = res[0]
                     self.conets = self.bombed
+                    t = 0
+                    c += 0 if res[0] else 1
+                    self.score += 100 * self.board.cells_cost[res[1]] * c
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
                         print(self.save_board('Vasya'))
@@ -49,8 +59,12 @@ class Game:
                     if event.key == pygame.K_LCTRL and event.key == pygame.K_s:
                         print(self.make_save())
                     if event.key == pygame.K_1 and self.sts:
+                        t = 0
+                        c = 0
                         self.st()
                     if event.key == pygame.K_1 and (not self.sts) and (self.conets) and (not self.show):
+                        t = 0
+                        c = 0
                         self.st()
                     if event.key == pygame.K_2 and (not self.sts) and (self.conets):
                         self.show = not self.show
@@ -76,6 +90,7 @@ class Game:
         pygame.display.flip()
 
     def st(self, board=None):
+        self.score = 0
         self.sts = 0
         self.conets = 0
         self.bombed = 0
@@ -90,17 +105,18 @@ class Game:
                         board['board']['bomb_pole'][i][j] = Bomb(self.board.cell_w, self.board.cell_h)
             self.board.bomb_pole = board['board']['bomb_pole']
             self.board.counts_up()
-        self.board.render2(self.screen)
+            self.board.cells_counts_up()
+            self.board.render2(self.screen)
         pygame.display.flip()
 
     def fin(self, status=None):
         self.timer.end()
         font = pygame.font.Font(None, 30)
         if status == 'win':
-            string_rendered = font.render(f'Победа Время: {self.timer.end_time - self.timer.start_time}', 1,
+            string_rendered = font.render(f'Победа Время: {self.timer.end_time - self.timer.start_time}\n Счёт: {self.score}', 1,
                                           pygame.Color('white'))
         elif status == 'bombed':
-            string_rendered = font.render(f'Game over Time: {self.timer.end_time - self.timer.start_time}', 1,
+            string_rendered = font.render(f'Game over Time: {self.timer.end_time - self.timer.start_time}\n Счёт: {self.score}', 1,
                                           pygame.Color('white'))
         x, y = self.screen.get_size()
         box = string_rendered.get_rect()
