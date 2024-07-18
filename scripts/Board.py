@@ -1,6 +1,7 @@
 import pygame
 from random import randint
 from numpy import zeros, full, arange, resize, random
+from collections import Counter
 
 
 from objects.Bomb import Bomb
@@ -31,7 +32,7 @@ class Board:
         self.bottom = self.top
         self.cell_w = cell_w
         self.cell_h = cell_h
-        self.cells_cost = {0: self.pole2,
+        self.cells_cost = {0: None,
                      1: None,
                      2: None,
                      3: None,
@@ -80,9 +81,10 @@ class Board:
         self.cells_counts_up()
 
     def cells_counts_up(self):
-        pram_pole = pram(self.counts_pole)
+        self.cells_cost = Counter(pram(self.counts_pole))
+        self.cells_cost[9] = 0
         for i in range(9):
-            self.cells_cost[i] = 1 - (pram_pole.counts(i) / self.width / self.height) / 100
+            self.cells_cost[i] = 1 - (self.cells_cost[i] / len(self.board) / len(self.board[0])) / 100
 
     def set_view2(self, left, right, top, bottom, screen, bombs=0):
         self.bombs = bombs

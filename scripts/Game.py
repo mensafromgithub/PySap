@@ -113,19 +113,21 @@ class Game:
         self.timer.end()
         font = pygame.font.Font(None, 30)
         if status == 'win':
-            string_rendered = font.render(f'Победа Время: {self.timer.end_time - self.timer.start_time}\n Счёт: {self.score}', 1,
+            string_rendered = font.render(f'Победа Время: {self.timer.end_time - self.timer.start_time}', 1,
                                           pygame.Color('white'))
         elif status == 'bombed':
-            string_rendered = font.render(f'Game over Time: {self.timer.end_time - self.timer.start_time}\n Счёт: {self.score}', 1,
+            string_rendered = font.render(f'Game over Time: {self.timer.end_time - self.timer.start_time}', 1,
                                           pygame.Color('white'))
         x, y = self.screen.get_size()
         box = string_rendered.get_rect()
         string_rendered2 = font.render('Нажмите [1] для начала в режиме игры 30X16 клеток', 1, pygame.Color('white'))
         box2 = string_rendered2.get_rect()
         string_rendered3 = font.render('Нажмите [2] для просмотра поля', 1, pygame.Color('white'))
+        string_rendered4 = font.render(f'Score: {self.score}', 1, pygame.Color('white'))
         surf = pygame.Surface(self.screen.get_size())
         surf.blit(self.image, (0, 0))
-        surf.blit(string_rendered, (x // 2 - box[2] // 2, y // 2 - box[3] // 2))
+        surf.blit(string_rendered4, (x // 2 - box[2] // 2, y // 2 - box[3] // 2))
+        surf.blit(string_rendered, (x // 2 - box[2] // 2, y // 2 - 30 - box[3] // 2))
         surf.blit(string_rendered2, (10 + box2[2] // 2, y - 10 - box2[3] // 2))
         surf.blit(string_rendered3, (10 + box2[2] // 2, y - 30 - box2[3] // 2))
         self.screen.blit(surf, (0, 0))
