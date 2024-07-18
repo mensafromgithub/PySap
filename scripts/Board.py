@@ -6,6 +6,10 @@ from numpy import zeros, full, arange, resize, random
 from objects.Bomb import Bomb
 
 
+def pram(cont):
+    return [j for i in cont for j in i]
+
+
 class Board:
     def __init__(self, width, height, screen, bombs=0, cell_w=50, cell_h=50):
         self.pole = pygame.image.load('data/defaultr.jpg').convert()
@@ -27,6 +31,16 @@ class Board:
         self.bottom = self.top
         self.cell_w = cell_w
         self.cell_h = cell_h
+        self.cells_cost = {0: self.pole2,
+                     1: None,
+                     2: None,
+                     3: None,
+                     4: None,
+                     5: None,
+                     6: None,
+                     7: None,
+                     8: None,
+                     9: 0}
         self.nums = {0: self.pole2,
                      1: pygame.image.load('data/1.png').convert(),
                      2: pygame.image.load('data/2.png').convert(),
@@ -63,6 +77,12 @@ class Board:
                     self.board[i][j] = pygame.transform.scale(self.nums[self.counts_pole[i][j]])
                 self.counts_pole[i][j] = c
                 c = 0
+        self.cells_counts_up()
+
+    def cells_counts_up(self):
+        pram_pole = pram(self.counts_pole)
+        for i in range(9):
+            self.cells_cost[i] = 1 - (pram_pole.counts(i) / self.width / self.height) / 100
 
     def set_view2(self, left, right, top, bottom, screen, bombs=0):
         self.bombs = bombs
@@ -119,12 +139,12 @@ class Board:
     def on_click(self, cell):
         try:
             if self.bomb_pole[cell[1]][cell[0]]:
-                return 1, [None]
+                return 1, 9
             else:
                 self.board[cell[1]][cell[0]] = pygame.transform.scale(self.nums[self.counts_pole[cell[1]][cell[0]]],
                                                                       (self.cell_w, self.cell_h))
             self.render2(self.screen)
             pygame.display.flip()
-            return 0
+            return 0, self.counts_pole[cell[1]][cell[0]]
         except:
             return None
