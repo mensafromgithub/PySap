@@ -48,7 +48,8 @@ class Game:
                     res = self.board.get_click(event.pos)
                     self.bombed = res[0]
                     self.conets = self.bombed
-                    t = 0
+                    if res[2]:
+                        t = 0
                     c += 0 if res[0] else 1
                     self.score += 100 * self.board.cells_cost[res[1]] * c
                 elif event.type == pygame.KEYDOWN:
