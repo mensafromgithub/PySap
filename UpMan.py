@@ -40,3 +40,4 @@ else:
         move(directory + '/' + i, './' + i)
     rmtree(directory)
     remove('update.zip')
+    print('\033[32mHere we go')
