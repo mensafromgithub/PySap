@@ -141,12 +141,14 @@ class Board:
     def on_click(self, cell):
         try:
             if self.bomb_pole[cell[1]][cell[0]]:
-                return 1, 9
+                return 1, 9, 1
+            elif self.board[cell[1]][cell[0]] == self.pole:
+                return 0, 9, 0
             else:
                 self.board[cell[1]][cell[0]] = pygame.transform.scale(self.nums[self.counts_pole[cell[1]][cell[0]]],
                                                                       (self.cell_w, self.cell_h))
             self.render2(self.screen)
             pygame.display.flip()
-            return 0, self.counts_pole[cell[1]][cell[0]]
+            return 0, self.counts_pole[cell[1]][cell[0]], 1
         except:
-            return None
+            return 0, 9, 0
